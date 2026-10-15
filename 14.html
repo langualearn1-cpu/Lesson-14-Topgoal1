@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordinal Numbers Exercise | المعلم: ماجد السويهري</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka, Baloo 2 & Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Cairo:wght@600;700;800;900&family=Fredoka:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #fef9c3 0%, #ffedd5 30%, #fce7f3 60%, #e0e7ff 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 3D Balloon Title Typography */
+        .title-3d-blue {
+            color: #0284c7;
+            -webkit-text-stroke: 2px #0369a1;
+            text-shadow: 
+                0 3px 0 #0284c7,
+                0 5px 0 #075985,
+                0 8px 16px rgba(3, 105, 161, 0.4);
+        }
+
+        /* Stylized White 3D Cartoon Number on the Cards */
+        .card-number-3d {
+            color: #ffffff;
+            font-family: 'Fredoka', 'Baloo 2', sans-serif;
+            font-weight: 800;
+            line-height: 0.95;
+            text-shadow: 
+                -2px -2px 0 rgba(0,0,0,0.2),  
+                 2px -2px 0 rgba(0,0,0,0.2),
+                -2px  2px 0 rgba(0,0,0,0.2),
+                 2px  2px 0 rgba(0,0,0,0.2),
+                 0 4px 6px rgba(0, 0, 0, 0.25);
+            letter-spacing: -0.5px;
+        }
+
+        /* Wooden Hanging Plaque */
+        .wooden-sign {
+            background: linear-gradient(180deg, #ddb372 0%, #c59751 45%, #b17e37 70%, #8f5c1d 100%);
+            border: 3.5px solid #5a380e;
+            box-shadow: 
+                0 8px 18px rgba(0, 0, 0, 0.25),
+                inset 0 2px 3px rgba(255, 255, 255, 0.4),
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            transform: rotate(-3deg);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .wooden-sign:hover {
+            transform: rotate(0deg) scale(1.02);
+            box-shadow: 0 12px 22px rgba(0,0,0,0.3);
+        }
+
+        .sign-rope-left, .sign-rope-right {
+            position: absolute;
+            top: -24px;
+            width: 4px;
+            height: 26px;
+            background: linear-gradient(to bottom, #784712, #a16220);
+            border-radius: 2px;
+        }
+        .sign-rope-left { left: 24px; transform: rotate(-10deg); }
+        .sign-rope-right { right: 24px; transform: rotate(10deg); }
+
+        /* Main Worksheet Paper Frame */
+        .worksheet-frame {
+            background-color: #fffef8;
+            background-image: 
+                radial-gradient(#fcd34d 1.1px, transparent 1.1px),
+                radial-gradient(#93c5fd 1.1px, transparent 1.1px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+            border: 6px solid #fbcfe8;
+            border-radius: 36px;
+            box-shadow: 
+                0 20px 45px -10px rgba(0, 0, 0, 0.16),
+                0 0 0 4px #bae6fd,
+                0 0 0 8px #fef08a;
+        }
+
+        /* Card Drop Slot */
+        .drop-target-slot {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 44px;
+        }
+        .drop-target-slot.slot-hovered {
+            background-color: #fef9c3 !important;
+            transform: scale(1.04);
+            box-shadow: 0 0 0 3px #38bdf8;
+        }
+        .drop-target-slot.slot-selected-target {
+            box-shadow: 0 0 0 3px #0284c7, 0 4px 12px rgba(2, 132, 199, 0.3);
+            animation: pulse-ring 1s infinite alternate;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.03); }
+        }
+
+        /* Draggable Word Chip */
+        .word-chip {
+            cursor: grab;
+            user-select: none;
+            touch-action: manipulation;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background-color 0.2s;
+        }
+        .word-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        .word-chip:active {
+            cursor: grabbing;
+            transform: scale(0.96);
+        }
+        .word-chip.chip-active-selected {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 3px #bae6fd, 0 6px 16px rgba(2, 132, 199, 0.45);
+            transform: scale(1.05);
+        }
+
+        /* Verification status styles */
+        .slot-correct {
+            border: 2.5px solid #22c55e !important;
+            background-color: #f0fdf4 !important;
+            color: #15803d !important;
+        }
+        .slot-wrong {
+            border: 2.5px solid #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            animation: shake-error 0.35s ease;
+        }
+        @keyframes shake-error {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-6 text-slate-800">
+
+    <div class="max-w-4xl mx-auto worksheet-frame p-3.5 sm:p-6 md:p-8 relative">
+
+        <!-- Top Controls Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b-2 border-dashed border-amber-200">
+            <!-- Voice and Speed Controls -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center bg-white px-2.5 py-1.5 rounded-xl border border-sky-200 shadow-xs">
+                    <span class="text-xs font-bold text-sky-700 mr-1.5 flex items-center gap-1">🎙️ Voice:</span>
+                    <select id="voiceSelect" onchange="changeVoice()" class="text-xs font-semibold text-slate-700 bg-transparent outline-none max-w-[140px] sm:max-w-[190px] cursor-pointer">
+                        <option value="">Auto Natural Voice</option>
+                    </select>
+                </div>
+                <button onclick="toggleSpeechRate()" id="speedBtn" class="bg-white hover:bg-sky-50 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-sky-200 shadow-xs flex items-center gap-1 transition-all">
+                    <span>🐇</span>
+                    <span id="speedLabel">Normal</span>
+                </button>
+            </div>
+
+            <!-- Sound FX & Score Badge -->
+            <div class="flex items-center gap-2">
+                <div class="bg-white px-3 py-1.5 rounded-xl border border-amber-200 shadow-xs text-xs font-bold text-amber-700 flex items-center gap-1.5">
+                    <span>⭐ Score:</span>
+                    <span id="scoreDisplay" class="text-amber-600 font-extrabold text-sm">0 / 12</span>
+                </div>
+                <button onclick="toggleAudioFX()" id="soundToggleBtn" class="bg-white hover:bg-slate-50 text-slate-700 p-2 rounded-xl text-xs font-bold border border-slate-200 shadow-xs" title="Mute/Unmute Audio FX">
+                    🔊
+                </button>
+            </div>
+        </div>
+
+        <!-- Header Grid: Teacher Hanging Sign + LANGUA LEARN Logo -->
+        <div class="relative mt-3 mb-2 pt-2">
+            <div class="flex items-start justify-between">
+                <!-- Wooden Hanging Sign (المعلم: ماجد السويهري) -->
+                <div class="relative z-10 shrink-0 cursor-pointer" onclick="greetTeacher()" title="Click to greet the teacher">
+                    <div class="sign-rope-left"></div>
+                    <div class="sign-rope-right"></div>
+                    <div class="wooden-sign px-3.5 sm:px-5 py-2 text-center shadow-lg">
+                        <div class="text-[11px] sm:text-xs font-black text-amber-100 font-cairo">المعلم:</div>
+                        <div class="text-xs sm:text-sm md:text-base font-black text-white font-cairo tracking-wide drop-shadow-sm">ماجد السويهري</div>
+                    </div>
+                </div>
+
+                <!-- LANGUA LEARN Brand Logo -->
+                <div class="bg-white/95 px-3 py-1.5 rounded-2xl border-2 border-rose-200 shadow-xs flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white text-base font-bold shadow-xs">
+                        🎓
+                    </div>
+                    <div class="text-left">
+                        <div class="text-xs sm:text-sm font-black text-slate-800 tracking-tight leading-none">LANGUA LEARN</div>
+                        <div class="text-[9px] text-rose-500 font-bold uppercase tracking-wider">Learn, Grow, Succeed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Centered 3D Title with Stars -->
+            <div class="text-center mt-2 mb-1">
+                <div class="flex items-center justify-center gap-2 mb-1">
+                    <span class="text-xl">⭐</span>
+                    <span class="text-xl">🎈</span>
+                    <span class="text-2xl font-black text-amber-500">✨</span>
+                    <span class="text-xl">🎈</span>
+                    <span class="text-xl">⭐</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-black title-3d-blue tracking-tight">
+                    Ordinal numbers
+                </h1>
+                <!-- Instruction Subtitle matching the worksheet -->
+                <h2 class="text-sm sm:text-base md:text-lg font-bold text-slate-800 mt-2 px-2">
+                    Look at the numbers and write the words in the correct place
+                </h2>
+                <p class="text-xs font-semibold text-slate-500 font-cairo mt-0.5" dir="rtl">
+                    اختر الكلمة المناسبة من الصندوق وضعها في المكان المخصص تحت كل رقم ترتيبي
+                </p>
+            </div>
+        </div>
+
+        <!-- Word Bank Box (Exact 4 columns from the worksheet) -->
+        <div class="bg-white/90 border-3 border-purple-300 rounded-3xl p-3 sm:p-5 shadow-xs mb-6 relative">
+            <div class="text-center mb-2">
+                <span class="bg-purple-100 text-purple-800 text-[11px] font-black px-3 py-0.5 rounded-full uppercase tracking-wider">
+                    Word Box (صندوق الكلمات)
+                </span>
+            </div>
+
+            <!-- 4 Columns Grid matching the paper -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 divide-y sm:divide-y-0 sm:divide-x sm:divide-purple-200" id="wordBoxColumnsContainer">
+                <!-- Column 1 -->
+                <div class="pt-2 sm:pt-0 flex flex-col gap-2 items-center" id="col-1"></div>
+                <!-- Column 2 -->
+                <div class="pt-2 sm:pt-0 sm:pl-3 flex flex-col gap-2 items-center" id="col-2"></div>
+                <!-- Column 3 -->
+                <div class="pt-2 sm:pt-0 sm:pl-3 flex flex-col gap-2 items-center" id="col-3"></div>
+                <!-- Column 4 -->
+                <div class="pt-2 sm:pt-0 sm:pl-3 flex flex-col gap-2 items-center" id="col-4"></div>
+            </div>
+
+            <!-- Interactive Hint Guide -->
+            <div class="mt-3 pt-2 border-t border-purple-100 flex items-center justify-between text-[11px] font-bold text-slate-500 flex-wrap gap-2">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-sky-600">💡</span>
+                    <span>اضغط على الكلمة ثم اضغط على المكان المخصص تحت الرقم، أو اسحب الكلمة وأفلتها مباشرة.</span>
+                </div>
+                <div id="selectionStatusHint" class="text-sky-700 font-bold font-cairo bg-sky-50 px-2.5 py-0.5 rounded-lg border border-sky-200">
+                    اختر كلمة للبدء
+                </div>
+            </div>
+        </div>
+
+        <!-- 12 Ordinal Cards: 3 columns x 4 rows exactly like the worksheet -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5 mb-6" id="ordinalCardsGrid">
+            <!-- 1ST Card (Red) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #ef4444;" id="card-wrap-1">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('First')" title="Listen to 1st">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>1</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">ST</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-red-300 shadow-inner relative" id="slot-1" ondragover="allowDrop(event)" ondrop="handleDrop(event, '1')" onclick="handleSlotClick('1')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 2ND Card (Pink) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #ec4899;" id="card-wrap-2">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Second')" title="Listen to 2nd">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>2</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">ND</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-pink-300 shadow-inner relative" id="slot-2" ondragover="allowDrop(event)" ondrop="handleDrop(event, '2')" onclick="handleSlotClick('2')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 3RD Card (Purple) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #8b5cf6;" id="card-wrap-3">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Third')" title="Listen to 3rd">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>3</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">RD</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-purple-300 shadow-inner relative" id="slot-3" ondragover="allowDrop(event)" ondrop="handleDrop(event, '3')" onclick="handleSlotClick('3')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 4TH Card (Lavender/Light Purple) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #c084fc;" id="card-wrap-4">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Fourth')" title="Listen to 4th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>4</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-purple-200 shadow-inner relative" id="slot-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, '4')" onclick="handleSlotClick('4')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 5TH Card (Cyan/Sky) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #06b6d4;" id="card-wrap-5">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Fifth')" title="Listen to 5th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>5</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-cyan-300 shadow-inner relative" id="slot-5" ondragover="allowDrop(event)" ondrop="handleDrop(event, '5')" onclick="handleSlotClick('5')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 6TH Card (Light Blue) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #38bdf8;" id="card-wrap-6">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Sixth')" title="Listen to 6th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>6</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-sky-300 shadow-inner relative" id="slot-6" ondragover="allowDrop(event)" ondrop="handleDrop(event, '6')" onclick="handleSlotClick('6')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 7TH Card (Deep Blue) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #1d4ed8;" id="card-wrap-7">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Seventh')" title="Listen to 7th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>7</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-blue-300 shadow-inner relative" id="slot-7" ondragover="allowDrop(event)" ondrop="handleDrop(event, '7')" onclick="handleSlotClick('7')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 8TH Card (Teal/Ocean Blue) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #0284c7;" id="card-wrap-8">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Eighth')" title="Listen to 8th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>8</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-sky-300 shadow-inner relative" id="slot-8" ondragover="allowDrop(event)" ondrop="handleDrop(event, '8')" onclick="handleSlotClick('8')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 9TH Card (Green) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #16a34a;" id="card-wrap-9">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Ninth')" title="Listen to 9th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>9</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-green-300 shadow-inner relative" id="slot-9" ondragover="allowDrop(event)" ondrop="handleDrop(event, '9')" onclick="handleSlotClick('9')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 10TH Card (Light Mint Green) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #4ade80;" id="card-wrap-10">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Tenth')" title="Listen to 10th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>10</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-green-200 shadow-inner relative" id="slot-10" ondragover="allowDrop(event)" ondrop="handleDrop(event, '10')" onclick="handleSlotClick('10')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 11TH Card (Orange / Amber) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #f97316;" id="card-wrap-11">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Eleventh')" title="Listen to 11th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>11</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-orange-300 shadow-inner relative" id="slot-11" ondragover="allowDrop(event)" ondrop="handleDrop(event, '11')" onclick="handleSlotClick('11')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+
+            <!-- 12TH Card (Rust / Terracotta) -->
+            <div class="rounded-3xl p-3 sm:p-4 text-center shadow-md flex flex-col justify-between" style="background-color: #ea580c;" id="card-wrap-12">
+                <div class="py-2 cursor-pointer" onclick="speakTargetNumber('Twelfth')" title="Listen to 12th">
+                    <div class="card-number-3d text-4xl sm:text-5xl md:text-6xl flex items-start justify-center">
+                        <span>12</span><span class="text-xl sm:text-2xl md:text-3xl font-extrabold mt-1 ml-0.5">TH</span>
+                    </div>
+                </div>
+                <div class="drop-target-slot bg-white rounded-2xl p-1.5 flex items-center justify-center border-2 border-dashed border-orange-400 shadow-inner relative" id="slot-12" ondragover="allowDrop(event)" ondrop="handleDrop(event, '12')" onclick="handleSlotClick('12')">
+                    <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons and Evaluation Status -->
+        <div class="bg-amber-50/80 rounded-3xl p-4 border-2 border-amber-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- Check Answers Button -->
+                <button onclick="checkAllAnswers()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 active:scale-95 text-white rounded-2xl font-black text-sm shadow-md transition-all flex items-center gap-2">
+                    <span>✅</span>
+                    <span>فحص الإجابات (Check Answers)</span>
+                </button>
+                <!-- Reset / Clear Button -->
+                <button onclick="resetBoard()" class="px-4 py-2.5 bg-white hover:bg-slate-100 active:scale-95 text-slate-700 border border-slate-300 rounded-2xl font-bold text-sm shadow-xs transition-all flex items-center gap-1.5">
+                    <span>🔄</span>
+                    <span>إعادة المحاولة (Reset)</span>
+                </button>
+            </div>
+
+            <!-- Result Feedback Notification -->
+            <div id="evaluationFeedback" class="text-xs font-black font-cairo text-slate-600 min-h-[24px] flex items-center">
+                <span>ضع الكلمات الـ 12 ثم اضغط فحص الإجابات</span>
+            </div>
+        </div>
+
+        <!-- Footer Note with Teacher Tribute -->
+        <div class="mt-6 pt-4 border-t-2 border-dashed border-amber-200 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-500 font-cairo">
+            <div class="flex items-center gap-1.5">
+                <span>⭐</span>
+                <span>تمرين الأعداد الترتيبية التفاعلي - إعداد المعلم: ماجد السويهري</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-md font-extrabold">LANGUA LEARN 🎓</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Exact 12 Ordinal Words and their columns from the worksheet
+        const WORD_BOX_COLUMNS = [
+            // Column 1
+            [
+                { id: 'ninth', word: 'Ninth', targetCard: '9', arabic: 'التاسع' },
+                { id: 'tenth', word: 'Tenth', targetCard: '10', arabic: 'العاشر' },
+                { id: 'third', word: 'Third', targetCard: '3', arabic: 'الثالث' }
+            ],
+            // Column 2
+            [
+                { id: 'eleventh', word: 'Eleventh', targetCard: '11', arabic: 'الحادي عشر' },
+                { id: 'second', word: 'Second', targetCard: '2', arabic: 'الثاني' },
+                { id: 'seventh', word: 'Seventh', targetCard: '7', arabic: 'السابع' }
+            ],
+            // Column 3
+            [
+                { id: 'eighth', word: 'Eighth', targetCard: '8', arabic: 'الثامن' },
+                { id: 'fourth', word: 'Fourth', targetCard: '4', arabic: 'الرابع' },
+                { id: 'twelfth', word: 'Twelfth', targetCard: '12', arabic: 'الثاني عشر' }
+            ],
+            // Column 4
+            [
+                { id: 'sixth', word: 'Sixth', targetCard: '6', arabic: 'السادس' },
+                { id: 'fifth', word: 'Fifth', targetCard: '5', arabic: 'الخامس' },
+                { id: 'first', word: 'First', targetCard: '1', arabic: 'الأول' }
+            ]
+        ];
+
+        // Flattened list for quick lookup
+        const ALL_WORDS = WORD_BOX_COLUMNS.flat();
+
+        // Application State
+        let placedWords = {}; // slotId: wordId
+        let selectedChipId = null; // for tap-to-select & tap-to-place
+        let isSlowSpeech = false;
+        let soundEffectsEnabled = true;
+        let audioCtx = null;
+        let selectedVoice = null;
+        let availableVoices = [];
+
+        // Audio Context Synthesizer
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtxClass) audioCtx = new AudioCtxClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        // Pleasant UI Chimes
+        function playChime(type = 'click') {
+            if (!soundEffectsEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(540, now);
+                    osc.frequency.exponentialRampToValueAtTime(840, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'place') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(660, now + 0.12);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.1);
+                    osc.frequency.setValueAtTime(783.99, now + 0.2);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(260, now);
+                    osc.frequency.setValueAtTime(180, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        function loadVoices() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return;
+
+            availableVoices = voices.filter(v => v.lang.startsWith('en'));
+            const selectEl = document.getElementById('voiceSelect');
+            selectEl.innerHTML = '<option value="">Auto Natural Voice</option>';
+
+            availableVoices.forEach((v, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.textContent = `${v.name} (${v.lang})`;
+                selectEl.appendChild(opt);
+            });
+
+            // Auto pick highest quality natural English voice
+            const best = availableVoices.find(v => 
+                v.name.includes('Natural') || 
+                v.name.includes('Google US') || 
+                v.name.includes('Samantha') || 
+                v.name.includes('Jenny')
+            );
+            if (best) selectedVoice = best;
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        }
+
+        function changeVoice() {
+            const val = document.getElementById('voiceSelect').value;
+            selectedVoice = val === '' ? null : availableVoices[parseInt(val, 10)] || null;
+        }
+
+        function toggleSpeechRate() {
+            isSlowSpeech = !isSlowSpeech;
+            document.getElementById('speedLabel').textContent = isSlowSpeech ? 'Slow (0.7x)' : 'Normal';
+            document.getElementById('speedBtn').querySelector('span:first-child').textContent = isSlowSpeech ? '🐢' : '🐇';
+            playChime('click');
+        }
+
+        function toggleAudioFX() {
+            soundEffectsEnabled = !soundEffectsEnabled;
+            document.getElementById('soundToggleBtn').textContent = soundEffectsEnabled ? '🔊' : '🔇';
+        }
+
+        // Natural Whole-Word English Pronunciation
+        function speakEnglish(text, onComplete = null) {
+            if (!('speechSynthesis' in window)) {
+                if (onComplete) setTimeout(onComplete, 800);
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = 'en-US';
+            utter.rate = isSlowSpeech ? 0.72 : 0.95;
+            utter.pitch = 1.0;
+            if (selectedVoice) utter.voice = selectedVoice;
+
+            utter.onend = () => { if (typeof onComplete === 'function') onComplete(); };
+            utter.onerror = () => { if (typeof onComplete === 'function') onComplete(); };
+
+            window.speechSynthesis.speak(utter);
+        }
+
+        function greetTeacher() {
+            playChime('click');
+            speakEnglish("Welcome to Teacher Majed Al-Swaihri's Ordinal Numbers Lesson!");
+        }
+
+        function speakTargetNumber(name) {
+            playChime('click');
+            speakEnglish(name);
+        }
+
+        function renderWordBox() {
+            WORD_BOX_COLUMNS.forEach((colItems, colIdx) => {
+                const colContainer = document.getElementById(`col-${colIdx + 1}`);
+                if (!colContainer) return;
+                colContainer.innerHTML = '';
+
+                colItems.forEach(item => {
+                    // Check if already placed in any slot
+                    const isPlaced = Object.values(placedWords).includes(item.id);
+                    const isSelected = selectedChipId === item.id;
+
+                    const chip = document.createElement('div');
+                    chip.id = `chip-${item.id}`;
+                    chip.draggable = !isPlaced;
+                    chip.ondragstart = (e) => handleDragStart(e, item.id);
+                    chip.onclick = () => handleChipClick(item.id);
+
+                    chip.className = `word-chip w-full max-w-[150px] px-3 py-1.5 sm:py-2 rounded-2xl border-2 font-black text-sm sm:text-base text-center transition-all ${
+                        isPlaced 
+                            ? 'opacity-25 bg-slate-100 border-dashed border-slate-300 text-slate-400 pointer-events-none'
+                            : isSelected
+                                ? 'chip-active-selected'
+                                : 'bg-white hover:bg-purple-50 border-purple-200 text-slate-800 shadow-2xs'
+                    }`;
+
+                    chip.innerHTML = `
+                        <div class="flex items-center justify-center gap-1.5">
+                            <span>${item.word}</span>
+                        </div>
+                    `;
+                    colContainer.appendChild(chip);
+                });
+            });
+
+            updateSelectionGuide();
+        }
+
+        function updateSelectionGuide() {
+            const guide = document.getElementById('selectionStatusHint');
+            if (!guide) return;
+
+            if (selectedChipId) {
+                const item = ALL_WORDS.find(w => w.id === selectedChipId);
+                guide.innerHTML = `الكلمة المختارة: <span class="font-black text-sky-800 underline">${item.word}</span> ➔ اضغط على المكان المخصص تحت رقمها`;
+                document.querySelectorAll('.drop-target-slot').forEach(s => s.classList.add('slot-selected-target'));
+            } else {
+                guide.innerHTML = 'اختر كلمة للبدء (أو اسحبها مباشرة)';
+                document.querySelectorAll('.drop-target-slot').forEach(s => s.classList.remove('slot-selected-target'));
+            }
+        }
+
+        // Chip Click handler (Tap-to-select)
+        function handleChipClick(wordId) {
+            playChime('click');
+            const item = ALL_WORDS.find(w => w.id === wordId);
+            if (item) speakEnglish(item.word);
+
+            if (selectedChipId === wordId) {
+                selectedChipId = null;
+            } else {
+                selectedChipId = wordId;
+            }
+            renderWordBox();
+        }
+
+        function handleDragStart(e, wordId) {
+            e.dataTransfer.setData('text/plain', wordId);
+            playChime('click');
+            const item = ALL_WORDS.find(w => w.id === wordId);
+            if (item) speakEnglish(item.word);
+            selectedChipId = wordId;
+            updateSelectionGuide();
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            const slot = e.currentTarget;
+            slot.classList.add('slot-hovered');
+        }
+
+        // Clear hover styling when dragging leaves
+        document.addEventListener('dragleave', (e) => {
+            if (e.target.classList && e.target.classList.contains('drop-target-slot')) {
+                e.target.classList.remove('slot-hovered');
+            }
+        });
+
+        function handleDrop(e, slotId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('slot-hovered');
+            const wordId = e.dataTransfer.getData('text/plain') || selectedChipId;
+            if (!wordId) return;
+
+            assignWordToSlot(slotId, wordId);
+        }
+
+        // Tap-to-Place handler on any slot
+        function handleSlotClick(slotId) {
+            if (selectedChipId) {
+                assignWordToSlot(slotId, selectedChipId);
+            } else if (placedWords[slotId]) {
+                // If clicked with no selected chip, remove word back to bank
+                playChime('click');
+                delete placedWords[slotId];
+                renderAllSlots();
+                renderWordBox();
+                clearEvaluationState();
+            }
+        }
+
+        function assignWordToSlot(slotId, wordId) {
+            playChime('place');
+
+            // If this word was placed in another slot, remove it from there
+            for (const sId in placedWords) {
+                if (placedWords[sId] === wordId) {
+                    delete placedWords[sId];
+                }
+            }
+
+            placedWords[slotId] = wordId;
+            selectedChipId = null;
+
+            const wordData = ALL_WORDS.find(w => w.id === wordId);
+            if (wordData) {
+                speakEnglish(wordData.word);
+            }
+
+            renderAllSlots();
+            renderWordBox();
+            clearEvaluationState();
+        }
+
+        // Render all 12 slots
+        function renderAllSlots() {
+            for (let i = 1; i <= 12; i++) {
+                const slotEl = document.getElementById(`slot-${i}`);
+                if (!slotEl) continue;
+
+                const assignedWordId = placedWords[i.toString()];
+                if (assignedWordId) {
+                    const item = ALL_WORDS.find(w => w.id === assignedWordId);
+                    slotEl.innerHTML = `
+                        <div class="w-full flex items-center justify-between px-2 font-black text-slate-800 text-sm sm:text-base animate-scale">
+                            <span class="truncate">${item.word}</span>
+                            <button onclick="removeWordFromSlot(event, '${i}')" class="text-xs text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-full w-5 h-5 flex items-center justify-center font-bold" title="Remove">✕</button>
+                        </div>
+                    `;
+                    slotEl.classList.remove('border-dashed');
+                    slotEl.classList.add('border-solid');
+                } else {
+                    slotEl.innerHTML = `
+                        <span class="text-xs font-bold text-slate-300 select-none slot-placeholder">Drop here</span>
+                    `;
+                    slotEl.classList.add('border-dashed');
+                    slotEl.classList.remove('border-solid');
+                }
+            }
+
+            updateScoreCount();
+        }
+
+        function removeWordFromSlot(e, slotId) {
+            e.stopPropagation();
+            playChime('click');
+            delete placedWords[slotId];
+            renderAllSlots();
+            renderWordBox();
+            clearEvaluationState();
+        }
+
+        function updateScoreCount() {
+            const count = Object.keys(placedWords).length;
+            document.getElementById('scoreDisplay').textContent = `${count} / 12`;
+        }
+
+        function clearEvaluationState() {
+            for (let i = 1; i <= 12; i++) {
+                const slotEl = document.getElementById(`slot-${i}`);
+                if (slotEl) {
+                    slotEl.classList.remove('slot-correct', 'slot-wrong');
+                }
+            }
+            document.getElementById('evaluationFeedback').innerHTML = '<span>ضع الكلمات الـ 12 ثم اضغط فحص الإجابات</span>';
+        }
+
+        function checkAllAnswers() {
+            const placedKeys = Object.keys(placedWords);
+            if (placedKeys.length === 0) {
+                playChime('click');
+                document.getElementById('evaluationFeedback').innerHTML = `<span class="text-amber-700">⚠️ الرجاء وضع بعض الكلمات في الخانات أولاً!</span>`;
+                return;
+            }
+
+            let correctCount = 0;
+            let wrongCount = 0;
+
+            for (let i = 1; i <= 12; i++) {
+                const slotEl = document.getElementById(`slot-${i}`);
+                const wordId = placedWords[i.toString()];
+
+                if (!slotEl) continue;
+                slotEl.classList.remove('slot-correct', 'slot-wrong');
+
+                if (wordId) {
+                    const item = ALL_WORDS.find(w => w.id === wordId);
+                    if (item && item.targetCard === i.toString()) {
+                        correctCount++;
+                        slotEl.classList.add('slot-correct');
+                    } else {
+                        wrongCount++;
+                        slotEl.classList.add('slot-wrong');
+                    }
+                }
+            }
+
+            if (correctCount === 12) {
+                playChime('success');
+                celebrateConfetti();
+                speakEnglish("Correct");
+                document.getElementById('evaluationFeedback').innerHTML = `<span class="text-emerald-700 font-extrabold text-sm">🎉 ممتاز جداً! جميع الكلمات في أماكنها الصحيحة (12/12)</span>`;
+            } else {
+                playChime('error');
+                document.getElementById('evaluationFeedback').innerHTML = `<span class="text-slate-800 font-bold">لديك <span class="text-emerald-600 font-black">${correctCount} صحيحة</span> و <span class="text-rose-600 font-black">${wrongCount} تحتاج تعديل</span>. أعد المحاولة!</span>`;
+            }
+        }
+
+        function resetBoard() {
+            playChime('click');
+            placedWords = {};
+            selectedChipId = null;
+            clearEvaluationState();
+            renderAllSlots();
+            renderWordBox();
+        }
+
+        function celebrateConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 75,
+                    spread: 80,
+                    origin: { y: 0.65 }
+                });
+            }
+        }
+
+        // Initialize application on load
+        window.onload = function() {
+            renderWordBox();
+            renderAllSlots();
+        };
+    </script>
+</body>
+</html>
